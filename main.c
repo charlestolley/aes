@@ -4,7 +4,7 @@
 void print_state(state_t * state)
 {
 	int row, col;
-	for (row = 0; row < 4; ++row)
+	for (row = 0; row < WORD_SIZE; ++row)
 	{
 		for (col = 0; col < NB; ++col)
 		{
@@ -24,8 +24,7 @@ int main() {
 			{.word=0x2be2f4a0},
 			{.word=0x2a8dc69a},
 			{.word=0x0848f8e9}
-		},
-		4
+		}
 	};
 
 	print_state(&state);

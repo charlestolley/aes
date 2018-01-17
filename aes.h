@@ -4,9 +4,10 @@
 #include <stdint.h>
 
 #define NB 4
+#define WORD_SIZE 4
 
 typedef union {
-	uint8_t bytes[4];
+	uint8_t bytes[WORD_SIZE];
 	uint32_t word;
 } byteword_t;
 

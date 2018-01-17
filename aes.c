@@ -39,7 +39,7 @@ void subbytes(state_t * state)
 	int i, j;
 	for (i = 0; i < NB; ++i)
 	{
-		for (j = 0; j < 4; ++j)
+		for (j = 0; j < WORD_SIZE; ++j)
 		{
 			uint8_t byte = state->cols[i].bytes[j];
 			state->cols[i].bytes[j] = SUBBYTE(byte);
@@ -50,7 +50,7 @@ void subbytes(state_t * state)
 void shiftrows(state_t * state)
 {
 	int i, j;
-	for (i = 1; i < 4; ++i)
+	for (i = 1; i < WORD_SIZE; ++i)
 	{
 		uint8_t row[NB];
 		for (j = 0; j < NB; ++j)
