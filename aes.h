@@ -15,6 +15,7 @@ typedef struct {
 } state_t;
 
 uint8_t ffmult(uint8_t a, uint8_t b);
-uint8_t subbytes(state_t * state);
+void subbytes(state_t * state);
+
 
 #endif
