@@ -29,5 +29,7 @@ int main() {
 	};
 
 	print_state(&state);
+	subbytes(&state);
+	print_state(&state);
 	return 0;
 }
