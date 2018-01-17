@@ -46,3 +46,20 @@ void subbytes(state_t * state)
 		}
 	}
 }
+
+void shiftrows(state_t * state)
+{
+	int i, j;
+	for (i = 1; i < 4; ++i)
+	{
+		uint8_t row[NB];
+		for (j = 0; j < NB; ++j)
+		{
+			row[j] = state->cols[(j+i)%NB].bytes[i];
+		}
+		for (j = 0; j < NB; ++j)
+		{
+			state->cols[j].bytes[i] = row[j];
+		}
+	}
+}
