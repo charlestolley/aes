@@ -78,3 +78,15 @@ void mixcolumns(state_t * state)
 		*col = new_col;
 	}
 }
+
+void addroundkey(state_t * state, key_t * key)
+{
+	int i, j;
+	for (i = 0; i < NB; ++i)
+	{
+		for (j = 0; j < WORD_SIZE; ++j)
+		{
+			state->cols[i].bytes[j] ^= key->cols[i].bytes[j];
+		}
+	}
+}

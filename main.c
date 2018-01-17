@@ -27,11 +27,21 @@ int main() {
 		}
 	};
 
+	key_t round_key = {
+		{
+			{.word=0x17fefaa0},
+			{.word=0xb12c5488},
+			{.word=0x3939a323},
+			{.word=0x05766c2a}
+		}
+	};
+
 	print_state(&state);
 	putchar('\n');
 	subbytes(&state);
 	shiftrows(&state);
 	mixcolumns(&state);
+	addroundkey(&state, &round_key);
 	print_state(&state);
 	return 0;
 }
