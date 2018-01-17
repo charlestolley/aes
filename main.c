@@ -6,7 +6,7 @@ void print_state(state_t * state)
 	int row, col;
 	for (row = 0; row < 4; ++row)
 	{
-		for (col = 0; col < state->nb; ++col)
+		for (col = 0; col < NB; ++col)
 		{
 			if (col)
 				putchar('\t');
