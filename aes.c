@@ -37,7 +37,7 @@ uint8_t ffmult(uint8_t a, uint8_t b)
 void subbytes(state_t * state)
 {
 	int i, j;
-	for (i = 0; i < state->nb; ++i)
+	for (i = 0; i < NB; ++i)
 	{
 		for (j = 0; j < 4; ++j)
 		{
