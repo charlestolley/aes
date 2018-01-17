@@ -20,16 +20,18 @@ int main() {
 	int i;
 	state_t state = {
 		{
-			{.word=0x12345678},
-			{.word=0x87654321},
-			{.word=0x11111111},
-			{.word=0xffffffff}
+			{.word=0xbee33d19},
+			{.word=0x2be2f4a0},
+			{.word=0x2a8dc69a},
+			{.word=0x0848f8e9}
 		},
 		4
 	};
 
 	print_state(&state);
+	putchar('\n');
 	subbytes(&state);
+	shiftrows(&state);
 	print_state(&state);
 	return 0;
 }
