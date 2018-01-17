@@ -63,3 +63,18 @@ void shiftrows(state_t * state)
 		}
 	}
 }
+
+void mixcolumns(state_t * state)
+{
+	int i;
+	for (i = 0; i < NB; ++i)
+	{
+		byteword_t * col = state->cols + i;
+		byteword_t new_col;
+		new_col.bytes[0] = ffmult(col->bytes[0], 2) ^ ffmult(col->bytes[1], 3) ^ col->bytes[2] ^ col->bytes[3];
+		new_col.bytes[1] = col->bytes[0] ^ ffmult(col->bytes[1], 2) ^ ffmult(col->bytes[2], 3) ^ col->bytes[3];
+		new_col.bytes[2] = col->bytes[0] ^ col->bytes[1] ^ ffmult(col->bytes[2], 2) ^ ffmult(col->bytes[3], 3);
+		new_col.bytes[3] = ffmult(col->bytes[0], 3) ^ col->bytes[1] ^ col->bytes[2] ^ ffmult(col->bytes[3], 2);
+		*col = new_col;
+	}
+}

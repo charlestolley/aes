@@ -31,6 +31,7 @@ int main() {
 	putchar('\n');
 	subbytes(&state);
 	shiftrows(&state);
+	mixcolumns(&state);
 	print_state(&state);
 	return 0;
 }
