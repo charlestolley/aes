@@ -79,7 +79,7 @@ void mixcolumns(state_t * state)
 	}
 }
 
-void addroundkey(state_t * state, key_t * key)
+void addroundkey(state_t * state, const key_t * key)
 {
 	int i, j;
 	for (i = 0; i < NB; ++i)
