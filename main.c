@@ -18,8 +18,7 @@ void print_state(const state_t * state)
 }
 
 int main() {
-	int i, Nr;
-	Nr = 10;
+	int i;
 
 	const state_t round_keys[11] = {
 		{{
@@ -111,5 +110,4 @@ int main() {
 	addroundkey(&state, round_keys + 10);
 
 	print_state(&state);
-	return 0;
 }
