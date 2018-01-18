@@ -23,4 +23,6 @@ void shiftrows(state_t * state);
 void mixcolumns(state_t * state);
 void addroundkey(state_t * state, const key_t * key);
 
+void subword(byteword_t * word);
+
 #endif

@@ -90,3 +90,13 @@ void addroundkey(state_t * state, const key_t * key)
 		}
 	}
 }
+
+void subword(byteword_t * word)
+{
+	int i;
+	for (i = 0; i < WORD_SIZE; ++i)
+	{
+		uint8_t byte = word->bytes[i];
+		word->bytes[i] = SUBBYTE(byte);
+	}
+}
