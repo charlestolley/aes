@@ -30,4 +30,6 @@ void rotateword(byteword_t * word);
 /* round_keys should be NB*(Nk+7) words long */
 void expand_keys(const uint8_t * key, byteword_t * round_keys, keylen_t Nk);
 
+void encrypt_block(const uint8_t * text, const uint8_t * key, uint8_t * cipher, keylen_t mode);
+
 #endif

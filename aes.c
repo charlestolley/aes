@@ -166,3 +166,40 @@ void expand_keys(const uint8_t * key, byteword_t * round_keys, keylen_t Nk)
 		round_keys[i].word = round_keys[i-Nk].word ^ temp.word;
 	}
 }
+
+void encrypt_block(const uint8_t * text, const uint8_t * key, uint8_t * cipher, keylen_t Nk)
+{
+	int i, j;
+	int Nr = Nk + 6;
+	state_t state;
+	byteword_t round_keys[NB*15];
+
+	for (i = 0; i < NB; ++i)
+	{
+		for (j = 0; j < WORD_SIZE; ++j)
+		{
+			state.cols[i].bytes[j] = text[4*i+j];
+		}
+	}
+
+	expand_keys(key, round_keys, Nk);
+
+	addroundkey(&state, round_keys);
+	for (i = 1; i < Nr; ++i) {
+		subbytes(&state);
+		shiftrows(&state);
+		mixcolumns(&state);
+		addroundkey(&state, round_keys + NB*i);
+	}
+	subbytes(&state);
+	shiftrows(&state);
+	addroundkey(&state, round_keys + NB*Nr);
+
+	for (i = 0; i < NB; ++i)
+	{
+		for (j = 0; j < WORD_SIZE; ++j)
+		{
+			cipher[4*i+j] = state.cols[i].bytes[j];
+		}
+	}
+}

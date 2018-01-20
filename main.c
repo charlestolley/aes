@@ -17,18 +17,14 @@ void print_state(const state_t * state)
 	putchar('\n');
 }
 
-void print_key(const key_t * key, keylen_t Nk)
+void print_byteword(const byteword_t * word)
 {
-	int row, col;
-	for (row = 0; row < WORD_SIZE; ++row)
+	int i;
+	for (i = 0; i < WORD_SIZE; ++i)
 	{
-		for (col = 0; col < Nk; ++col)
-		{
-			if (col)
-				putchar('\t');
-			printf("0x%02x", key->cols[col].bytes[row]);
-		}
-		putchar('\n');
+		if (i)
+			putchar('\t');
+		printf("0x%02x", word->bytes[i]);
 	}
 	putchar('\n');
 }
@@ -69,27 +65,32 @@ int hex_to_state(uint8_t hex[32], state_t * state)
 	}
 }
 
-int main() {
+void test(const uint8_t * text, const uint8_t * key, uint8_t * cipher, keylen_t mode)
+{
 	int i;
-
-	uint8_t cipher_key[16];
-	key_t round_keys[11];
-	state_t state;
-
-	hex_to_bytes("000102030405060708090a0b0c0d0e0f", cipher_key, 16);
-	hex_to_state("00112233445566778899aabbccddeeff", &state);
-	expand_keys(cipher_key, round_keys, AES128);
-
-	addroundkey(&state, round_keys);
-	for (i = 1; i < 10; ++i) {
-		subbytes(&state);
-		shiftrows(&state);
-		mixcolumns(&state);
-		addroundkey(&state, round_keys + i);
+	encrypt_block(text, key, cipher, mode);
+	for (i = 0; i < 16; ++i)
+	{
+		if (i)
+			putchar(' ');
+		printf("%02x", cipher[i]);
 	}
-	subbytes(&state);
-	shiftrows(&state);
-	addroundkey(&state, round_keys + 10);
+	putchar('\n');
+}
 
-	print_state(&state);
+int main() {
+	uint8_t key128[16];
+	uint8_t key192[24];
+	uint8_t key256[32];
+	uint8_t text[16];
+	uint8_t cipher[16];
+
+	hex_to_bytes("00112233445566778899aabbccddeeff", text, 16);
+	hex_to_bytes("000102030405060708090a0b0c0d0e0f", key128, 16);
+	hex_to_bytes("000102030405060708090a0b0c0d0e0f1011121314151617", key192, 24);
+	hex_to_bytes("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f", key256, 32);
+
+	test(text, key128, cipher, AES128);
+	test(text, key192, cipher, AES192);
+	test(text, key256, cipher, AES256);
 }
