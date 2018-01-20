@@ -17,10 +17,6 @@ typedef struct {
 	byteword_t cols[NB];
 } state_t;
 
-typedef struct {
-	byteword_t cols[AES256];
-} key_t;
-
 uint8_t ffmult(uint8_t a, uint8_t b);
 void subbytes(state_t * state);
 void shiftrows(state_t * state);
@@ -31,7 +27,7 @@ void subword(byteword_t * word);
 void rotateword(byteword_t * word);
 
 /* key should be Nk*4 bytes long */
-/* round_keys should be Nk+7 key_t's long */
+/* round_keys should be NB*(Nk+7) words long */
 void expand_keys(const uint8_t * key, byteword_t * round_keys, keylen_t Nk);
 
 #endif
