@@ -25,13 +25,13 @@ uint8_t ffmult(uint8_t a, uint8_t b);
 void subbytes(state_t * state);
 void shiftrows(state_t * state);
 void mixcolumns(state_t * state);
-void addroundkey(state_t * state, const key_t * key);
+void addroundkey(state_t * state, const byteword_t * key);
 
 void subword(byteword_t * word);
 void rotateword(byteword_t * word);
 
 /* key should be Nk*4 bytes long */
 /* round_keys should be Nk+7 key_t's long */
-void expand_keys(const uint8_t * key, key_t * round_keys, keylen_t Nk);
+void expand_keys(const uint8_t * key, byteword_t * round_keys, keylen_t Nk);
 
 #endif

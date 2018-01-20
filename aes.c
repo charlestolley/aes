@@ -108,14 +108,14 @@ void mixcolumns(state_t * state)
 	}
 }
 
-void addroundkey(state_t * state, const key_t * key)
+void addroundkey(state_t * state, const byteword_t * key)
 {
 	int i, j;
 	for (i = 0; i < NB; ++i)
 	{
 		for (j = 0; j < WORD_SIZE; ++j)
 		{
-			state->cols[i].bytes[j] ^= key->cols[i].bytes[j];
+			state->cols[i].bytes[j] ^= key[i].bytes[j];
 		}
 	}
 }
@@ -139,23 +139,20 @@ void rotateword(byteword_t * word)
 	word->bytes[3] = tmp;
 }
 
-void expand_keys(const uint8_t * key, key_t * round_keys, keylen_t Nk)
+void expand_keys(const uint8_t * key, byteword_t * round_keys, keylen_t Nk)
 {
 	int i, j;
 	for (i = 0; i < Nk; ++i)
 	{
 		for (j = 0; j < WORD_SIZE; ++j)
 		{
-			round_keys[0].cols[i].bytes[j] = key[4*i+j];
+			round_keys[i].bytes[j] = key[4*i+j];
 		}
 	}
 
 	for (; i < NB*(Nk+7); ++i)
 	{
-		uint8_t key_index, word_index;
-		key_index = (i-1)/Nk;
-		word_index = (i-1)%Nk;
-		byteword_t temp = round_keys[key_index].cols[word_index];
+		byteword_t temp = round_keys[i-1];
 
 		if (i % Nk == 0)
 		{
@@ -166,8 +163,6 @@ void expand_keys(const uint8_t * key, key_t * round_keys, keylen_t Nk)
 		{
 			subword(&temp);
 		}
-		key_index = (i)/Nk;
-		word_index = (i)%Nk;
-		round_keys[key_index].cols[word_index].word = round_keys[key_index-1].cols[word_index].word ^ temp.word;
+		round_keys[i].word = round_keys[i-Nk].word ^ temp.word;
 	}
 }
