@@ -37,4 +37,6 @@ void invsubbytes(state_t * state);
 void invshiftrows(state_t * state);
 void invmixcolumns(state_t * state);
 
+void decrypt_block(const uint8_t * cipher, const uint8_t * key, uint8_t * text, keylen_t mode);
+
 #endif

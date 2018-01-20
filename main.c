@@ -68,6 +68,7 @@ int main() {
 	uint8_t key256[32];
 	uint8_t text[16];
 	uint8_t cipher[16];
+	uint8_t decrypted_text[16];
 
 	hex_to_bytes("00112233445566778899aabbccddeeff", text, 16);
 	hex_to_bytes("000102030405060708090a0b0c0d0e0f", key128, 16);
@@ -75,6 +76,9 @@ int main() {
 	hex_to_bytes("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f", key256, 32);
 
 	encrypt_block(text, key128, cipher, AES128);
+	decrypt_block(cipher, key128, decrypted_text, AES128);
 	encrypt_block(text, key192, cipher, AES192);
+	decrypt_block(cipher, key192, decrypted_text, AES192);
 	encrypt_block(text, key256, cipher, AES256);
+	decrypt_block(cipher, key256, decrypted_text, AES256);
 }
