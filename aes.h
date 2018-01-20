@@ -35,5 +35,6 @@ void encrypt_block(const uint8_t * text, const uint8_t * key, uint8_t * cipher, 
 
 void invsubbytes(state_t * state);
 void invshiftrows(state_t * state);
+void invmixcolumns(state_t * state);
 
 #endif

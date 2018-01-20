@@ -158,6 +158,22 @@ void mixcolumns(state_t * state)
 	}
 }
 
+void invmixcolumns(state_t * state)
+{
+	int i;
+	for (i = 0; i < NB; ++i)
+	{
+		byteword_t * col = state->cols + i;
+		uint8_t * bytes = col->bytes;
+		byteword_t new_col;
+		new_col.bytes[0] = ffmult(bytes[0], 0x0e) ^ ffmult(bytes[1], 0x0b) ^ ffmult(bytes[2], 0x0d) ^ ffmult(bytes[3], 0x09);
+		new_col.bytes[1] = ffmult(bytes[0], 0x09) ^ ffmult(bytes[1], 0x0e) ^ ffmult(bytes[2], 0x0b) ^ ffmult(bytes[3], 0x0d);
+		new_col.bytes[2] = ffmult(bytes[0], 0x0d) ^ ffmult(bytes[1], 0x09) ^ ffmult(bytes[2], 0x0e) ^ ffmult(bytes[3], 0x0b);
+		new_col.bytes[3] = ffmult(bytes[0], 0x0b) ^ ffmult(bytes[1], 0x0d) ^ ffmult(bytes[2], 0x09) ^ ffmult(bytes[3], 0x0e);
+		*col = new_col;
+	}
+}
+
 void addroundkey(state_t * state, const byteword_t * key)
 {
 	int i, j;
