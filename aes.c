@@ -167,6 +167,24 @@ void expand_keys(const uint8_t * key, byteword_t * round_keys, keylen_t Nk)
 	}
 }
 
+void print_words(const byteword_t * w)
+{
+	int i, j;
+	for (i = 0; i < NB; ++i)
+	{
+		for (j = 0; j < WORD_SIZE; ++j)
+		{
+			printf("%02x", w[i].bytes[j]);
+		}
+	}
+	putchar('\n');
+}
+
+void print_state(const state_t* state)
+{
+	print_words(state->cols);
+}
+
 void encrypt_block(const uint8_t * text, const uint8_t * key, uint8_t * cipher, keylen_t Nk)
 {
 	int i, j;
@@ -184,16 +202,50 @@ void encrypt_block(const uint8_t * text, const uint8_t * key, uint8_t * cipher, 
 
 	expand_keys(key, round_keys, Nk);
 
+	printf("round[ 0].input\t\t");
+	print_state(&state);
+	printf("round[ 0].k_sch\t\t");
+	print_words(round_keys);
+
 	addroundkey(&state, round_keys);
+
 	for (i = 1; i < Nr; ++i) {
+		printf("round[%2d].start\t\t", i);
+		print_state(&state);
+
 		subbytes(&state);
+		printf("round[%2d].s_box\t\t", i);
+		print_state(&state);
+
 		shiftrows(&state);
+		printf("round[%2d].s_row\t\t", i);
+		print_state(&state);
+
 		mixcolumns(&state);
+		printf("round[%2d].m_col\t\t", i);
+		print_state(&state);
+
 		addroundkey(&state, round_keys + NB*i);
+		printf("round[%2d].k_sch\t\t", i);
+		print_words(&round_keys[NB*i]);
 	}
+	printf("round[%2d].start\t\t", i);
+	print_state(&state);
+
 	subbytes(&state);
+	printf("round[%2d].s_box\t\t", i);
+	print_state(&state);
+
 	shiftrows(&state);
+	printf("round[%2d].s_row\t\t", i);
+	print_state(&state);
+
 	addroundkey(&state, round_keys + NB*Nr);
+	printf("round[%2d].k_sch\t\t", i);
+	print_words(&round_keys[NB*i]);
+
+	printf("round[%2d].output\t", i);
+	print_state(&state);
 
 	for (i = 0; i < NB; ++i)
 	{
@@ -202,4 +254,5 @@ void encrypt_block(const uint8_t * text, const uint8_t * key, uint8_t * cipher, 
 			cipher[4*i+j] = state.cols[i].bytes[j];
 		}
 	}
+	putchar('\n');
 }

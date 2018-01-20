@@ -1,22 +1,6 @@
 #include <stdio.h>
 #include "aes.h"
 
-void print_state(const state_t * state)
-{
-	int row, col;
-	for (row = 0; row < WORD_SIZE; ++row)
-	{
-		for (col = 0; col < NB; ++col)
-		{
-			if (col)
-				putchar('\t');
-			printf("0x%02x", state->cols[col].bytes[row]);
-		}
-		putchar('\n');
-	}
-	putchar('\n');
-}
-
 void print_byteword(const byteword_t * word)
 {
 	int i;
@@ -90,7 +74,7 @@ int main() {
 	hex_to_bytes("000102030405060708090a0b0c0d0e0f1011121314151617", key192, 24);
 	hex_to_bytes("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f", key256, 32);
 
-	test(text, key128, cipher, AES128);
-	test(text, key192, cipher, AES192);
-	test(text, key256, cipher, AES256);
+	encrypt_block(text, key128, cipher, AES128);
+	encrypt_block(text, key192, cipher, AES192);
+	encrypt_block(text, key256, cipher, AES256);
 }
