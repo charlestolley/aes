@@ -126,6 +126,23 @@ void shiftrows(state_t * state)
 	}
 }
 
+void invshiftrows(state_t * state)
+{
+	int i, j;
+	for (i = 1; i < WORD_SIZE; ++i)
+	{
+		uint8_t row[NB];
+		for (j = 0; j < NB; ++j)
+		{
+			row[(j+i)%NB] = state->cols[j].bytes[i];
+		}
+		for (j = 0; j < NB; ++j)
+		{
+			state->cols[j].bytes[i] = row[j];
+		}
+	}
+}
+
 void mixcolumns(state_t * state)
 {
 	int i;
