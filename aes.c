@@ -95,6 +95,20 @@ void subbytes(state_t * state)
 	}
 }
 
+#define INVSUBBYTE(b) (INVSBOX[b>>4][b&0x0f])
+void invsubbytes(state_t * state)
+{
+	int i, j;
+	for (i = 0; i < NB; ++i)
+	{
+		for (j = 0; j < WORD_SIZE; ++j)
+		{
+			uint8_t byte = state->cols[i].bytes[j];
+			state->cols[i].bytes[j] = INVSUBBYTE(byte);
+		}
+	}
+}
+
 void shiftrows(state_t * state)
 {
 	int i, j;

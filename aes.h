@@ -33,4 +33,6 @@ void expand_keys(const uint8_t * key, byteword_t * round_keys, keylen_t Nk);
 
 void encrypt_block(const uint8_t * text, const uint8_t * key, uint8_t * cipher, keylen_t mode);
 
+void invsubbytes(state_t * state);
+
 #endif
