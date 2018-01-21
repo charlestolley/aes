@@ -2,9 +2,11 @@
 #define CHUCK_AES_H
 
 #include <stdint.h>
+#include <stdio.h>
 
 #define NB 4
 #define WORD_SIZE 4
+#define BLOCK_SIZE (NB*WORD_SIZE)
 
 typedef enum { AES128=4, AES192=6, AES256=8 } keylen_t;
 
@@ -30,7 +32,9 @@ void rotateword(byteword_t * word);
 /* round_keys should be NB*(Nk+7) words long */
 void expand_keys(const uint8_t * key, byteword_t * round_keys, keylen_t Nk);
 
-void encrypt_block(const uint8_t * text, const uint8_t * key, uint8_t * cipher, keylen_t mode);
+/* blocks = # of blocks of text; this will just assume that the text has already been padded */
+void encrypt(const uint8_t * text, uint32_t blocks, const uint8_t * key, keylen_t mode, FILE * cipher);
+void encrypt_block(state_t * state, const byteword_t * round_keys, keylen_t Nk);
 
 void invsubbytes(state_t * state);
 void invshiftrows(state_t * state);

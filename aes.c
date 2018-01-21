@@ -233,41 +233,63 @@ void expand_keys(const uint8_t * key, byteword_t * round_keys, keylen_t Nk)
 	}
 }
 
-void encrypt_block(const uint8_t * text, const uint8_t * key, uint8_t * cipher, keylen_t Nk)
+void encrypt_block(state_t * state, const byteword_t * round_keys, keylen_t Nk)
 {
-	int i, j;
+	int i;
 	int Nr = Nk + 6;
-	state_t state;
-	byteword_t round_keys[NB*15];
 
-	for (i = 0; i < NB; ++i)
-	{
-		for (j = 0; j < WORD_SIZE; ++j)
-		{
-			state.cols[i].bytes[j] = text[4*i+j];
-		}
-	}
-
-	expand_keys(key, round_keys, Nk);
-
-	addroundkey(&state, round_keys);
+	addroundkey(state, round_keys);
 
 	for (i = 1; i < Nr; ++i) {
-		subbytes(&state);
-		shiftrows(&state);
-		mixcolumns(&state);
-		addroundkey(&state, round_keys + NB*i);
+		subbytes(state);
+		shiftrows(state);
+		mixcolumns(state);
+		addroundkey(state, round_keys + NB*i);
 	}
-	subbytes(&state);
-	shiftrows(&state);
-	addroundkey(&state, round_keys + NB*Nr);
+	subbytes(state);
+	shiftrows(state);
+	addroundkey(state, round_keys + NB*Nr);
+}
 
+void bytes_to_state(const uint8_t * bytes, state_t * state)
+{
+	int i, j;
 	for (i = 0; i < NB; ++i)
 	{
 		for (j = 0; j < WORD_SIZE; ++j)
 		{
-			cipher[4*i+j] = state.cols[i].bytes[j];
+			state->cols[i].bytes[j] = bytes[4*i+j];
 		}
+	}
+}
+
+void state_to_stream(const state_t * state, FILE * stream)
+{
+	int i, j;
+	for (i = 0; i < NB; ++i)
+	{
+		for (j = 0; j < WORD_SIZE; ++j)
+		{
+			fputc(state->cols[i].bytes[j], stream);
+		}
+	}
+}
+
+void encrypt(const uint8_t * text, uint32_t blocks, const uint8_t * key, keylen_t mode, FILE * cipher)
+{
+	size_t i = 0;
+	state_t state;
+
+	byteword_t round_keys[NB*15];
+	expand_keys(key, round_keys, mode);
+
+	while (i < blocks)
+	{
+		bytes_to_state(text+i*BLOCK_SIZE, &state);
+		++i;
+
+		encrypt_block(&state, round_keys, mode);
+		state_to_stream(&state, cipher);
 	}
 }
 

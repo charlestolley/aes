@@ -49,19 +49,6 @@ int hex_to_state(uint8_t hex[32], state_t * state)
 	}
 }
 
-void test(const uint8_t * text, const uint8_t * key, uint8_t * cipher, keylen_t mode)
-{
-	int i;
-	encrypt_block(text, key, cipher, mode);
-	for (i = 0; i < 16; ++i)
-	{
-		if (i)
-			putchar(' ');
-		printf("%02x", cipher[i]);
-	}
-	putchar('\n');
-}
-
 int main() {
 	uint8_t key128[16];
 	uint8_t key192[24];
@@ -75,10 +62,9 @@ int main() {
 	hex_to_bytes("000102030405060708090a0b0c0d0e0f1011121314151617", key192, 24);
 	hex_to_bytes("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f", key256, 32);
 
-	encrypt_block(text, key128, cipher, AES128);
-	decrypt_block(cipher, key128, decrypted_text, AES128);
-	encrypt_block(text, key192, cipher, AES192);
-	decrypt_block(cipher, key192, decrypted_text, AES192);
-	encrypt_block(text, key256, cipher, AES256);
-	decrypt_block(cipher, key256, decrypted_text, AES256);
+	encrypt(text, 1, key128, AES128, stdout);
+	putchar('\n');
+	encrypt(text, 1, key192, AES192, stdout);
+	putchar('\n');
+	encrypt(text, 1, key256, AES256, stdout);
 }
