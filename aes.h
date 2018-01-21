@@ -2,7 +2,6 @@
 #define CHUCK_AES_H
 
 #include <stdint.h>
-#include <stdio.h>
 
 #define NB 4
 #define WORD_SIZE 4
