@@ -1,5 +1,23 @@
 #include "aes.h"
 
+uint8_t ffmult(uint8_t a, uint8_t b);
+void subbytes(state_t * state);
+void shiftrows(state_t * state);
+void mixcolumns(state_t * state);
+void addroundkey(state_t * state, const byteword_t * key);
+
+void invsubbytes(state_t * state);
+void invshiftrows(state_t * state);
+void invmixcolumns(state_t * state);
+
+void subword(byteword_t * word);
+void rotateword(byteword_t * word);
+
+void expand_keys(const uint8_t * key, byteword_t * round_keys, keylen_t Nk);
+
+void encrypt_block(state_t * state, const byteword_t * round_keys, keylen_t Nk);
+void decrypt_block(const uint8_t * cipher, const uint8_t * key, uint8_t * text, keylen_t mode);
+
 const byteword_t Rcon[] = {
 	{.bytes={0x00,0x00,0x00,0x00}}, {.bytes={0x01,0x00,0x00,0x00}},
 	{.bytes={0x02,0x00,0x00,0x00}}, {.bytes={0x04,0x00,0x00,0x00}},
@@ -205,6 +223,8 @@ void rotateword(byteword_t * word)
 	word->bytes[3] = tmp;
 }
 
+/* key should be Nk*4 bytes long */
+/* round_keys should be NB*(Nk+7) words long */
 void expand_keys(const uint8_t * key, byteword_t * round_keys, keylen_t Nk)
 {
 	int i, j;
