@@ -1,4 +1,5 @@
 *
 !*.h
 !*.c
+main.c
 !.gitignore
