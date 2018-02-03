@@ -16,7 +16,11 @@ void rotateword(byteword_t * word);
 void expand_keys(const uint8_t * key, byteword_t * round_keys, keylen_t Nk);
 
 void encrypt_block(state_t * state, const byteword_t * round_keys, keylen_t Nk);
-void decrypt_block(const uint8_t * cipher, const uint8_t * key, uint8_t * text, keylen_t mode);
+void decrypt_block(state_t * state, const byteword_t * round_keys, keylen_t Nk);
+
+void bytes_to_state(const uint8_t * bytes, state_t * state);
+int read_block(FILE * text, char block[BLOCK_SIZE]);
+void state_to_stream(const state_t * state, FILE * stream);
 
 const byteword_t Rcon[] = {
 	{.bytes={0x00,0x00,0x00,0x00}}, {.bytes={0x01,0x00,0x00,0x00}},
@@ -257,6 +261,7 @@ void encrypt_block(state_t * state, const byteword_t * round_keys, keylen_t Nk)
 {
 	int i;
 	int Nr = Nk + 6;
+	uint8_t bytes[BLOCK_SIZE];
 
 	addroundkey(state, round_keys);
 
@@ -271,6 +276,24 @@ void encrypt_block(state_t * state, const byteword_t * round_keys, keylen_t Nk)
 	addroundkey(state, round_keys + NB*Nr);
 }
 
+void decrypt_block(state_t * state, const byteword_t * round_keys, keylen_t Nk)
+{
+	int i;
+	int Nr = Nk + 6;
+
+	addroundkey(state, round_keys + NB*Nr);
+
+	for (i = 1; i < Nr; ++i) {
+		invshiftrows(state);
+		invsubbytes(state);
+		addroundkey(state, round_keys + NB*(Nr-i));
+		invmixcolumns(state);
+	}
+	invshiftrows(state);
+	invsubbytes(state);
+	addroundkey(state, round_keys);
+}
+
 void bytes_to_state(const uint8_t * bytes, state_t * state)
 {
 	int i, j;
@@ -283,70 +306,52 @@ void bytes_to_state(const uint8_t * bytes, state_t * state)
 	}
 }
 
-void state_to_stream(const state_t * state, FILE * stream)
+void state_to_bytes(const state_t * state, uint8_t * bytes)
 {
-	int i, j;
-	for (i = 0; i < NB; ++i)
+	int col, row, i;
+	for (col = 0, i = 0; col < NB; ++col)
 	{
-		for (j = 0; j < WORD_SIZE; ++j)
+		for (row = 0; row < WORD_SIZE; ++row, ++i)
 		{
-			fputc(state->cols[i].bytes[j], stream);
+			bytes[i] = state->cols[col].bytes[row];
 		}
 	}
 }
 
-void encrypt(const uint8_t * text, uint32_t blocks, const uint8_t * key, keylen_t mode, FILE * cipher)
+/* for now, only ECB mode is supported */
+void encrypt(const uint8_t * text, uint8_t * cipher, size_t len,
+				const uint8_t * key, keylen_t keytype, aes_mode_t mode)
 {
-	size_t i = 0;
+	int i;
 	state_t state;
+	uint8_t bytes[BLOCK_SIZE];
 
 	byteword_t round_keys[NB*15];
-	expand_keys(key, round_keys, mode);
+	expand_keys(key, round_keys, keytype);
 
-	while (i < blocks)
+	while (len > 0)
 	{
-		bytes_to_state(text+i*BLOCK_SIZE, &state);
-		++i;
-
-		encrypt_block(&state, round_keys, mode);
-		state_to_stream(&state, cipher);
-	}
-}
-
-void decrypt_block(const uint8_t * cipher, const uint8_t * key, uint8_t * text, keylen_t Nk)
-{
-	int i, j;
-	int Nr = Nk + 6;
-	state_t state;
-	byteword_t round_keys[NB*15];
-
-	for (i = 0; i < NB; ++i)
-	{
-		for (j = 0; j < WORD_SIZE; ++j)
+		if (len >= BLOCK_SIZE)
 		{
-			state.cols[i].bytes[j] = cipher[4*i+j];
+			bytes_to_state(text, &state);
+			text += BLOCK_SIZE;
+			len -= BLOCK_SIZE;
 		}
-	}
-
-	expand_keys(key, round_keys, Nk);
-
-	addroundkey(&state, round_keys + NB*Nr);
-
-	for (i = 1; i < Nr; ++i) {
-		invshiftrows(&state);
-		invsubbytes(&state);
-		addroundkey(&state, round_keys + NB*(Nr-i));
-		invmixcolumns(&state);
-	}
-	invshiftrows(&state);
-	invsubbytes(&state);
-	addroundkey(&state, round_keys);
-
-	for (i = 0; i < NB; ++i)
-	{
-		for (j = 0; j < WORD_SIZE; ++j)
+		else
 		{
-			text[4*i+j] = state.cols[i].bytes[j];
+			for (i = 0; i < len; ++i)
+			{
+				bytes[i] = text[i];
+			}
+			for (; i < BLOCK_SIZE; ++i)
+			{
+				bytes[i] = 0;
+			}
+			len = 0;
+			bytes_to_state(bytes, &state);
 		}
+		encrypt_block(&state, round_keys, keytype);
+		state_to_bytes(&state, cipher);
+		cipher += BLOCK_SIZE;
 	}
 }
