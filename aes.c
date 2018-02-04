@@ -318,9 +318,50 @@ void state_to_bytes(const state_t * state, uint8_t * bytes)
 	}
 }
 
-/* for now, only ECB mode is supported */
-void encrypt(const uint8_t * text, uint8_t * cipher, size_t len,
-				const uint8_t * key, keylen_t keytype, aes_mode_t mode)
+void encryptCBC(const uint8_t * text, uint8_t * cipher, size_t len,
+				const uint8_t * key, keylen_t keytype, const uint8_t * iv)
+{
+	int i;
+	state_t state;
+	uint8_t bytes[BLOCK_SIZE];
+
+	byteword_t round_keys[NB*15];
+	expand_keys(key, round_keys, keytype);
+
+	while (len > 0)
+	{
+		if (len >= BLOCK_SIZE)
+		{
+			for (i = 0; i < BLOCK_SIZE; ++i)
+			{
+				bytes[i] = text[i] ^ iv[i];
+			}
+			bytes_to_state(bytes, &state);
+			text += BLOCK_SIZE;
+			len -= BLOCK_SIZE;
+		}
+		else
+		{
+			for (i = 0; i < len; ++i)
+			{
+				bytes[i] = text[i] ^ iv[i];
+			}
+			for (; i < BLOCK_SIZE; ++i)
+			{
+				bytes[i] = iv[i];
+			}
+			len = 0;
+			bytes_to_state(bytes, &state);
+		}
+		encrypt_block(&state, round_keys, keytype);
+		state_to_bytes(&state, cipher);
+		iv = cipher;
+		cipher += BLOCK_SIZE;
+	}
+}
+
+void encryptECB(const uint8_t * text, uint8_t * cipher, size_t len,
+								const uint8_t * key, keylen_t keytype)
 {
 	int i;
 	state_t state;

@@ -9,7 +9,7 @@
 #define BLOCK_SIZE (NB*WORD_SIZE)
 
 typedef enum { AES128=4, AES192=6, AES256=8 } keylen_t;
-typedef enum { ECB } aes_mode_t;
+typedef enum { ECB, CBC } aes_mode_t;
 
 typedef union {
 	uint8_t bytes[WORD_SIZE];
@@ -20,8 +20,9 @@ typedef struct {
 	byteword_t cols[NB];
 } state_t;
 
-/* blocks = # of blocks of text; this will just assume that the text has already been padded */
-void encrypt(const uint8_t * text, uint8_t * cipher, size_t len,
-				const uint8_t * key, keylen_t keytype, aes_mode_t mode);
+void encryptCBC(const uint8_t * text, uint8_t * cipher, size_t len,
+				const uint8_t * key, keylen_t keytype, const uint8_t * iv);
+void encryptECB(const uint8_t * text, uint8_t * cipher, size_t len,
+								const uint8_t * key, keylen_t keytype);
 
 #endif
