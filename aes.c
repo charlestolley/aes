@@ -318,6 +318,33 @@ void state_to_bytes(const state_t * state, uint8_t * bytes)
 	}
 }
 
+/* the ciphertext input must be an exact multiple of BLOCK_SIZE */
+void decryptCBC(const uint8_t * cipher, uint8_t * text, size_t block_count,
+					const uint8_t * key, keylen_t keytype, const uint8_t * iv)
+{
+	int i;
+	state_t state;
+	uint8_t bytes[BLOCK_SIZE];
+
+	byteword_t round_keys[NB*15];
+	expand_keys(key, round_keys, keytype);
+
+	while (block_count-- > 0)
+	{
+		bytes_to_state(cipher, &state);
+		decrypt_block(&state, round_keys, keytype);
+		state_to_bytes(&state, bytes);
+		for (i = 0; i < BLOCK_SIZE; ++i)
+		{
+			text[i] = bytes[i] ^ iv[i];
+		}
+		iv = cipher;
+		cipher += BLOCK_SIZE;
+		text += BLOCK_SIZE;
+	}
+}
+
+/* text will be padded with '\0' as needed */
 void encryptCBC(const uint8_t * text, uint8_t * cipher, size_t len,
 				const uint8_t * key, keylen_t keytype, const uint8_t * iv)
 {
@@ -360,6 +387,27 @@ void encryptCBC(const uint8_t * text, uint8_t * cipher, size_t len,
 	}
 }
 
+/* the ciphertext input must be an exact multiple of BLOCK_SIZE */
+void decryptECB(const uint8_t * cipher, uint8_t * text, size_t block_count,
+										const uint8_t * key, keylen_t keytype)
+{
+	state_t state;
+
+	byteword_t round_keys[NB*15];
+	expand_keys(key, round_keys, keytype);
+
+	while (block_count-- > 0)
+	{
+		bytes_to_state(cipher, &state);
+		decrypt_block(&state, round_keys, keytype);
+		state_to_bytes(&state, text);
+
+		cipher += BLOCK_SIZE;
+		text += BLOCK_SIZE;
+	}
+}
+
+/* text will be padded with '\0' as needed */
 void encryptECB(const uint8_t * text, uint8_t * cipher, size_t len,
 								const uint8_t * key, keylen_t keytype)
 {

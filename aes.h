@@ -20,6 +20,10 @@ typedef struct {
 	byteword_t cols[NB];
 } state_t;
 
+void decryptCBC(const uint8_t * cipher, uint8_t * text, size_t block_count,
+					const uint8_t * key, keylen_t keytype, const uint8_t * iv);
+void decryptECB(const uint8_t * cipher, uint8_t * text, size_t block_count,
+										const uint8_t * key, keylen_t keytype);
 void encryptCBC(const uint8_t * text, uint8_t * cipher, size_t len,
 				const uint8_t * key, keylen_t keytype, const uint8_t * iv);
 void encryptECB(const uint8_t * text, uint8_t * cipher, size_t len,
